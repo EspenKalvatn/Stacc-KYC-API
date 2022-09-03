@@ -1,9 +1,11 @@
 package Stacc.KYC.API.model;
 
 import lombok.Getter;
-import lombok.Setter;
 
-@Getter @Setter
+import java.util.ArrayList;
+import java.util.Arrays;
+
+@Getter
 public class Person {
 
     private float score;
@@ -20,4 +22,9 @@ public class Person {
     private String dataset;
     private String last_seen;
     private String first_seen;
+
+    public ArrayList<String> getAliases() {
+        return new ArrayList<String>(Arrays.asList(aliases.split(";")));
+    }
+
 }

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.IOException;
+import java.util.List;
 
 @Controller
 @RequestMapping("/check")
@@ -24,8 +25,8 @@ public class PepCheckController {
 
     @RequestMapping("organization/{orgNumber}")
     @ResponseBody
-    public String checkOrganizationNumber(@PathVariable String orgNumber) {
-        return orgNumber;
+    public List<String> checkOrganizationNumber(@PathVariable String orgNumber) throws IOException {
+        return pepCheckService.checkOrganizationNumber(orgNumber);
     }
 
 

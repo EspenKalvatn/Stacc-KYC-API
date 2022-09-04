@@ -1,11 +1,12 @@
 package Stacc.KYC.API.model;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-@Getter
+@Getter @Setter
 public class Person {
 
     private float score;
@@ -15,6 +16,7 @@ public class Person {
     private String aliases;
     private String birth_date;
     private String countries;
+    private String addresses;
     private String identifiers;
     private String sanctions;
     private String phones;

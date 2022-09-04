@@ -1,5 +1,6 @@
 package Stacc.KYC.API.service;
 
+import Stacc.KYC.API.model.PepReader;
 import Stacc.KYC.API.model.Person;
 import Stacc.KYC.API.model.organization.RoleGroup;
 import Stacc.KYC.API.model.organization.Roles;
@@ -8,10 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,13 +18,18 @@ public class PepCheckService {
 
     @Autowired
     private ObjectMapper mapper;
+    private List<String> nameList;
+    //private List<Person> personList;
+    public PepCheckService() {
+        nameList = PepReader.CSVToNameList("src//main//resources//pep.csv");
+//        personList = PepReader.CSVToPOJOList("src//main//resources//pep.csv");
+    }
 
-
-    public String checkPerson(String name) throws IOException {
+    public String checkPerson(String name) {
         if (isPoliticallyExposed(name)) {
             return name + " is a politically exposed person.";
         }
-        return name + " is not a politically exposed person";
+        return name + " is not a politically exposed person.";
     }
 
     public List<String> checkOrganizationNumber(String orgNumber) throws IOException {
@@ -49,18 +52,25 @@ public class PepCheckService {
         return pepList;
     }
 
-    private boolean isPoliticallyExposed(String name) throws IOException {
-        String jsonString = Files.readString(Path.of("src//main//resources//pep_samll.json"));
-        List<Person> pepList = mapper.readValue(jsonString, new TypeReference<>() {});
 
-        for (Person person : pepList) {
-            if (person.getName().equals(name)) {
+
+    private boolean isPoliticallyExposed(String name) {
+
+//        for (Person person : personList) {
+//            if (person.getName().equals(name)) {
+//                return true;
+//            }
+//            for (String alias : person.getAliases()) {
+//                if (alias.equals(name)) {
+//                    return true;
+//                }
+//            }
+//        }
+//        return false;
+
+        for (String n : nameList) {
+            if (n.equals(name)) {
                 return true;
-            }
-            for (String alias : person.getAliases()) {
-                if (alias.equals(name)) {
-                    return true;
-                }
             }
         }
         return false;

@@ -19,7 +19,7 @@ public class PepCheckController {
 
     @RequestMapping("person/{name}")
     @ResponseBody
-    public String checkPerson(@PathVariable String name) throws IOException {
+    public String checkPerson(@PathVariable String name) {
         return pepCheckService.checkPerson(name);
     }
 

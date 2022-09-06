@@ -63,7 +63,7 @@ that organization and returns a list of names (text strings) of publicly exposed
     ["Erna Solberg","Jan Tore Sanner","Helge Orten","Trond Helleland","Kristin Ørmen Johnsen","Tina Bru","Heidi Nordby Lunde","Lars Myraune"]
 
 ## Further remarks
-First, I misread the task description and based the API solution on the data from the perp_small.json file. This dataset was quite small compared to the pep.csv file.
+First, I misread the task description and based the API solution on the data from the pep_small.json file. This dataset was quite small compared to the pep.csv file.
 I found working with JSON data in Java much easier than working with CSV files and found very easy solutions to convert JSON objects to POJO (plain old java objects). 
 After switching to working with the pep.csv instead, I made some methods to create a similar solutions as with the JSON objects. I ended up with two solutions, the first 
 where I only store the names and the aliases from the CSV file, and the second where I create a Person-object for each row in the dataset. For this solution, I found it sufficient

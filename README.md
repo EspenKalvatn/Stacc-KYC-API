@@ -50,21 +50,22 @@ the API call in the search bar. Since the API is running locally, you will need 
 `/person/{name}` takes in a name or alias (text string) and performs a PEP-check on this name towards the list provided.
 The call returns a sentence which tells you if the name is of a publicly exposed person or not. This could easily be replaced with a boolean if wanted.
 #### Input:
-    localhost:8080/check/person/Ola Nordmann
+    localhost:8080/check/person/Erna Solberg
 #### Output:
-    Ola Nordmann is not a politically exposed person.
+    Erna Solberg is a politically exposed person.
 
 ### Check organization
 `/organization/{organization number}` takes in an organization number (text string), performs a PEP-check on people inside 
 that organization and returns a list of names (text strings) of publicly exposed persons within the organization.
 #### Input:
-    localhost:8080/check/organization/123456789
+    localhost:8080/check/organization/870168012
 #### Output: 
-    [PEP 1, PEP 2, PEP 3, ...]
+    ["Erna Solberg","Jan Tore Sanner","Helge Orten","Trond Helleland","Kristin Ørmen Johnsen","Tina Bru","Heidi Nordby Lunde","Lars Myraune"]
 
 ## Further remarks
 First, I misread the task description and based the API solution on the data from the perp_small.json file. This dataset was quite small compared to the pep.csv file.
 I found working with JSON data in Java much easier than working with CSV files and found very easy solutions to convert JSON objects to POJO (plain old java objects). 
 After switching to working with the pep.csv instead, I made some methods to create a similar solutions as with the JSON objects. I ended up with two solutions, the first 
 where I only store the names and the aliases from the CSV file, and the second where I create a Person-object for each row in the dataset. For this solution, I found it sufficient
-to use the first solution and just store the names and aliases from the file.
+to use the first solution and just store the names and aliases from the file, but for a more general solution, I went with the second one. I can see that it may be of interest to 
+return a JSON object with information if the person you are checking is politically exposed.

@@ -2,6 +2,7 @@ package Stacc.KYC.API.service;
 
 import Stacc.KYC.API.model.PepReader;
 import Stacc.KYC.API.model.Person;
+import Stacc.KYC.API.model.organization.Name;
 import Stacc.KYC.API.model.organization.RoleGroup;
 import Stacc.KYC.API.model.organization.Roles;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -18,11 +19,11 @@ public class PepCheckService {
 
     @Autowired
     private ObjectMapper mapper;
-    private List<String> nameList;
-    //private List<Person> personList;
+//    private List<String> nameList;
+    private List<Person> personList;
     public PepCheckService() {
-        nameList = PepReader.CSVToNameList("src//main//resources//pep.csv");
-//        personList = PepReader.CSVToPOJOList("src//main//resources//pep.csv");
+//        nameList = PepReader.CSVToNameList("src//main//resources//pep.csv");
+        personList = PepReader.CSVToPOJOList("src//main//resources//pep.csv");
     }
 
     public String checkPerson(String name) {
@@ -38,13 +39,19 @@ public class PepCheckService {
         String url = "https://code-challenge.stacc.dev/api/roller?orgNr=" + orgNumber;
         RestTemplate restTemplate = new RestTemplate();
         Object[] jsonObjects = restTemplate.getForObject(url, Object[].class);
+
         List<RoleGroup> roleGroupTypes = mapper.readValue(mapper.writeValueAsString(jsonObjects), new TypeReference<>() {});
 
         for (RoleGroup group : roleGroupTypes) {
+
             for (Roles roles : group.getRoller()) {
-                String name = roles.getPerson().getNavn().getFornavn() + " " + roles.getPerson().getNavn().getEtternavn();
-                if (isPoliticallyExposed(name) && !pepList.contains(name)) { // The same person can have several roles within an organization.
-                    pepList.add(name);
+                if (roles.getPerson() == null) {
+                    continue;
+                }
+                String fullName = roles.getPerson().getFullName();
+
+                if (isPoliticallyExposed(fullName) && !pepList.contains(fullName)) { // The same person can have several roles within an organization.
+                    pepList.add(fullName);
                 }
             }
         }
@@ -56,24 +63,24 @@ public class PepCheckService {
 
     private boolean isPoliticallyExposed(String name) {
 
-//        for (Person person : personList) {
-//            if (person.getName().equals(name)) {
-//                return true;
-//            }
-//            for (String alias : person.getAliases()) {
-//                if (alias.equals(name)) {
-//                    return true;
-//                }
-//            }
-//        }
-//        return false;
-
-        for (String n : nameList) {
-            if (n.equals(name)) {
+        for (Person person : personList) {
+            if (person.getName().equals(name)) {
                 return true;
+            }
+            for (String alias : person.getAliases()) {
+                if (alias.equals(name)) {
+                    return true;
+                }
             }
         }
         return false;
+
+//        for (String n : nameList) {
+//            if (n.equals(name)) {
+//                return true;
+//            }
+//        }
+//        return false;
     }
 
 

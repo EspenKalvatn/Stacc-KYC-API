@@ -2,16 +2,17 @@ package Stacc.KYC.API.service;
 
 import Stacc.KYC.API.model.PepReader;
 import Stacc.KYC.API.model.Person;
-import Stacc.KYC.API.model.organization.Name;
 import Stacc.KYC.API.model.organization.RoleGroup;
 import Stacc.KYC.API.model.organization.Roles;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -19,28 +20,54 @@ public class PepCheckService {
 
     @Autowired
     private ObjectMapper mapper;
-//    private List<String> nameList;
-    private List<Person> personList;
+    private HashMap<String, Person> personMap;
+
     public PepCheckService() {
-//        nameList = PepReader.CSVToNameList("src//main//resources//pep.csv");
-        personList = PepReader.CSVToPOJOList("src//main//resources//pep.csv");
+        personMap = PepReader.readCSV("src//main//resources//pep.csv");
     }
 
-    public String checkPerson(String name) {
-        if (isPoliticallyExposed(name)) {
-            return name + " is a politically exposed person.";
+
+    public ResponseEntity checkPerson(String name) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json");
+
+        Person person = personMap.get(name);
+        ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.ok().headers(headers);
+        if(person != null) {
+            return responseBuilder.body(person);
+        } else {
+//            return responseBuilder.body(new EmptyJsonBody());
+            return responseBuilder.body(name + " not publicly exposed.");
         }
-        return name + " is not a politically exposed person.";
     }
 
-    public List<String> checkOrganizationNumber(String orgNumber) throws IOException {
-        List<String> pepList = new ArrayList<>();
+    public ResponseEntity checkOrganizationNumber(String orgNumber) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json");
 
-        String url = "https://code-challenge.stacc.dev/api/roller?orgNr=" + orgNumber;
-        RestTemplate restTemplate = new RestTemplate();
-        Object[] jsonObjects = restTemplate.getForObject(url, Object[].class);
+        List<Person> persons = getAllPubliclyExposed(orgNumber);
+        ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.ok().headers(headers);
+        if (!persons.isEmpty()) {
+            return responseBuilder.body(persons);
+        } else {
+//            return responseBuilder.body(new EmptyJsonBody());
+            return responseBuilder.body("No publicly exposed persons in organization with organization number: " + orgNumber);
+        }
 
-        List<RoleGroup> roleGroupTypes = mapper.readValue(mapper.writeValueAsString(jsonObjects), new TypeReference<>() {});
+    }
+
+    private List<Person> getAllPubliclyExposed(String orgNumber) {
+        List<Person> pepList = new ArrayList<>();
+
+        Object[] jsonObjects = getOrganization(orgNumber);
+
+        List<RoleGroup> roleGroupTypes;
+        try {
+            roleGroupTypes = mapper.readValue(mapper.writeValueAsString(jsonObjects), new TypeReference<>() {});
+        } catch (Exception e) {
+            System.err.println(e);
+            return null;
+        }
 
         for (RoleGroup group : roleGroupTypes) {
 
@@ -50,8 +77,8 @@ public class PepCheckService {
                 }
                 String fullName = roles.getPerson().getFullName();
 
-                if (isPoliticallyExposed(fullName) && !pepList.contains(fullName)) { // The same person can have several roles within an organization.
-                    pepList.add(fullName);
+                if (personMap.containsKey(fullName) && !pepList.contains(fullName)) { // The same person can have several roles within an organization.
+                    pepList.add(personMap.get(fullName));
                 }
             }
         }
@@ -59,28 +86,11 @@ public class PepCheckService {
         return pepList;
     }
 
-
-
-    private boolean isPoliticallyExposed(String name) {
-
-        for (Person person : personList) {
-            if (person.getName().equals(name)) {
-                return true;
-            }
-            for (String alias : person.getAliases()) {
-                if (alias.equals(name)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-
-//        for (String n : nameList) {
-//            if (n.equals(name)) {
-//                return true;
-//            }
-//        }
-//        return false;
+    private Object[] getOrganization(String orgNumber) {
+        String url = "https://code-challenge.stacc.dev/api/roller?orgNr=" + orgNumber;
+        RestTemplate restTemplate = new RestTemplate();
+        Object[] jsonObjects = restTemplate.getForObject(url, Object[].class);
+        return jsonObjects;
     }
 
 

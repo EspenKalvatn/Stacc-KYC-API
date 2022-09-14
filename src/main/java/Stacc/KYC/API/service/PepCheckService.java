@@ -2,6 +2,7 @@ package Stacc.KYC.API.service;
 
 import Stacc.KYC.API.model.PepReader;
 import Stacc.KYC.API.model.Person;
+import Stacc.KYC.API.model.Response;
 import Stacc.KYC.API.model.organization.RoleGroup;
 import Stacc.KYC.API.model.organization.Roles;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -31,29 +32,26 @@ public class PepCheckService {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json");
 
+        List<Person> results = new ArrayList<>();
         Person person = personMap.get(name);
-        ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.ok().headers(headers);
-        if(person != null) {
-            return responseBuilder.body(person);
-        } else {
-//            return responseBuilder.body(new EmptyJsonBody());
-            return responseBuilder.body(name + " not publicly exposed.");
+        if (person != null) {
+            results.add(person);
         }
+
+        Response response = new Response(results);
+        ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.ok().headers(headers);
+
+        return responseBuilder.body(response);
     }
 
     public ResponseEntity checkOrganizationNumber(String orgNumber) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json");
 
-        List<Person> persons = getAllPubliclyExposed(orgNumber);
-        ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.ok().headers(headers);
-        if (!persons.isEmpty()) {
-            return responseBuilder.body(persons);
-        } else {
-//            return responseBuilder.body(new EmptyJsonBody());
-            return responseBuilder.body("No publicly exposed persons in organization with organization number: " + orgNumber);
-        }
+        Response response = new Response(getAllPubliclyExposed(orgNumber));
 
+        ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.ok().headers(headers);
+        return responseBuilder.body(response);
     }
 
     private List<Person> getAllPubliclyExposed(String orgNumber) {

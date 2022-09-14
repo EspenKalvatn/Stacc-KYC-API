@@ -2,48 +2,16 @@ package Stacc.KYC.API.model;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class PepReader {
 
     /**
      * @param csvFile a csv file on the same format as the pep.csv file.
-     * @return a list of names and aliases (text strings)
+     * @return a HashMap with names/aliases as keys and a Person-object with the information stored as a value.
      */
-    public static List<String> CSVToNameList(String csvFile) {
-        ArrayList<String> names = new ArrayList<>();
-
-        String line;
-        try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
-            br.readLine();
-            while ((line = br.readLine()) != null) {
-                List<String> values = Arrays.asList(line.replaceAll("[\"]","").split(","));
-
-                String name = values.get(2);
-                names.add(name);
-
-                List<String> aliases = Arrays.asList(values.get(3).split(";"));
-                for (String alias : aliases) {
-                    if (!alias.isBlank()) {
-                        names.add(alias);
-                    }
-                }
-
-            }
-        } catch (Exception e){
-            System.out.println(e);
-        }
-        return names;
-    }
-
-    /**
-     * @param csvFile a csv file on the same format as the pep.csv file.
-     * @return a list of Person-objects.
-     */
-    public static List<Person> CSVToPOJOList(String csvFile) {
-        ArrayList<Person> persons = new ArrayList<>();
+    public static HashMap<String, Person> readCSV(String csvFile) {
+        HashMap<String, Person> namePersonMap = new HashMap<>();
 
         String line;
         try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
@@ -67,12 +35,15 @@ public class PepReader {
                 person.setLast_seen(values.get(12));
                 person.setFirst_seen(values.get(13));
 
-                persons.add(person);
+                namePersonMap.put(person.getName(), person);
+                for (String alias : person.getAliases()) {
+                    namePersonMap.put(alias, person);
+                }
             }
         } catch (Exception e){
-            System.out.println(e);
+            System.err.println(e);
         }
-        return persons;
+        return namePersonMap;
     }
 
 }

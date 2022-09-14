@@ -2,30 +2,27 @@ package Stacc.KYC.API.controller;
 
 import Stacc.KYC.API.service.PepCheckService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
-import java.util.List;
 
-@Controller
+@RestController
 @RequestMapping("/check")
 public class PepCheckController {
 
     @Autowired
     PepCheckService pepCheckService;
 
+
     @RequestMapping("person/{name}")
-    @ResponseBody
-    public String checkPerson(@PathVariable String name) {
+    public ResponseEntity checkPerson(@PathVariable String name) {
         return pepCheckService.checkPerson(name);
     }
 
     @RequestMapping("organization/{orgNumber}")
-    @ResponseBody
-    public List<String> checkOrganizationNumber(@PathVariable String orgNumber) throws IOException {
+    public ResponseEntity checkOrganizationNumber(@PathVariable String orgNumber) {
         return pepCheckService.checkOrganizationNumber(orgNumber);
     }
 

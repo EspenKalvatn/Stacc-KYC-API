@@ -1,0 +1,46 @@
+body {
+    margin: 0;
+    padding: 0;
+    padding-top: 50px;
+}
+
+#content {
+    background-color: #F3F1F0;
+    margin: auto;
+    width: 600px;
+    height: 300px;
+    border: 2px solid #B3B0AF;
+    border-radius: 20px;
+    padding: 10px;
+}
+
+#title {
+    background-color: #AD362B;
+    text-align: center;
+    border-radius: 10px;
+    color: #FFFFFF;
+    font-size: 25px;
+}
+
+#info {
+    text-align: center;
+}
+
+
+#form {
+    text-align: center;
+}
+
+#submit-id {
+    background-color: #AD362B;
+    font-size: 15px;
+    font-weight: bold;
+    color: #FFFFFF;
+}
+
+input {
+    padding: 5px;
+    margin: 5px 0;
+    border: 1px solid #B3B0AF;
+    border-radius: 10px;
+}

@@ -5,7 +5,8 @@
 - [Project description](#project-description)
 - [Setup](#setup)
 - [How to run](#how-to-run)
-- [How to use](#how-to-use)
+- [How to use the GUI](#how-to-use-the-gui)
+- [How to use the API](#how-to-use-the-api)
 - [Further remarks](#further-remarks)
 
 ## Task description
@@ -22,7 +23,10 @@ More about the task description can be found [here](https://github.com/stacc/sta
 
 ## Project description
 In my solution, I chose to prioritize a backend solution, and created an API according to the task suggestions. 
-The project is coded in Java and is using the Springboot framework to make it a REST-API. I focused on making two endpoints, 
+I have also made a simple frontend to make it easier to call the API (no prior experience). 
+The backend is coded in Java and is using the Springboot framework to make it a REST-API.
+The frontend is coded in HTML, CSS and JavaScript.
+For the backend, I focused on making two endpoints, 
 one for performing a PEP check on an individual, and one for checking all persons in an organization. Both endpoints are using 
 the provided CSV file [pep.csv](src/main/resources/pep.csv) with publicly exposed persons, to decide if a given name is publicly exposed or not.
 The second endpoint is using the [provided API](https://code-challenge.stacc.dev/) from Stacc to search up an organization by an organization number to get 
@@ -42,30 +46,35 @@ Alternatively you can download the source code with the button to the left of th
 Inside the IDE of your choice, locate the main class `src/main/java/Stacc/KYC/API/StaccKycApiApplication.java` and run it.
 The API is now running locally on your computer. 
 
-## How to use
+## How to use the GUI
+I have made a simple frontend to make it easier for the user to use the API. After running the application. The frontend can be reached on `localhost:8080`. 
+This frontend solution do not preprocess the JSON response from the API call, but only redirects you to the JSON object returned by the API call. 
+You can read more about what the endpoints of the API is returning in the next section.
+
+## How to use the API
 The API has two endpoints. To use the endpoints, you can for example use Postman, or simply open up a web browser and write 
 the API call in the search bar. Since the API is running locally, you will need to use `localhost:8080/check`
 
 ### Check person
 `/person/{name}` takes in a name or alias (text string) and performs a PEP-check on this name towards the list provided.
-The call returns a sentence which tells you if the name is of a publicly exposed person or not. This could easily be replaced with a boolean if wanted.
+The call returns a JSON object containing information found about the person searching for. Information about the person is placed inside a response-body 
+which tells you how many hits your search got and a list of person objects (if for example the name occurs in multiple datasets). If the person you are searching for is not publicly exposed, 
+it will return a response body with `hits:0` and `results:[]`.  
 #### Input:
     localhost:8080/check/person/Erna Solberg
 #### Output:
-    Erna Solberg is a politically exposed person.
+    {"hits":1, "results":[ {...} ]}
 
 ### Check organization
 `/organization/{organization number}` takes in an organization number (text string), performs a PEP-check on people inside 
-that organization and returns a list of names (text strings) of publicly exposed persons within the organization.
+that organization and returns a response-body as mentioned above with information on how many hits your search got, and a list of person-objects.
 #### Input:
     localhost:8080/check/organization/870168012
 #### Output: 
-    ["Erna Solberg","Jan Tore Sanner","Helge Orten","Trond Helleland","Kristin Ørmen Johnsen","Tina Bru","Heidi Nordby Lunde","Lars Myraune"]
+    {"hits":8, "results":[ {...}, {...}, ... , {...} ]}
 
 ## Further remarks
 First, I misread the task description and based the API solution on the data from the pep_small.json file. This dataset was quite small compared to the pep.csv file.
-I found working with JSON data in Java much easier than working with CSV files and found very easy solutions to convert JSON objects to POJO (plain old java objects). 
-After switching to working with the pep.csv instead, I made some methods to create a similar solutions as with the JSON objects. I ended up with two solutions, the first 
-where I only store the names and the aliases from the CSV file, and the second where I create a Person-object for each row in the dataset. For this solution, I found it sufficient
-to use the first solution and just store the names and aliases from the file, but for a more general solution, I went with the second one. I can see that it may be of interest to 
-return a JSON object with information if the person you are checking is politically exposed.
+I found working with JSON data in Java much easier than working with CSV files and found very easy solutions to convert JSON objects to POJO (plain old java objects).
+I thought a lot about what information the endpoints of the API should return. In the start, I only returned a string sentence saying if a person is a publicly exposed person or not.
+After some thought, I decided to return information about that person, so it could be used further. 
